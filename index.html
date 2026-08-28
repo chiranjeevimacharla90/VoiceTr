@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>VoiceTr — English · Hindi · Tamil</title>
+  <style>
+    :root { --bg:#0b1020; --panel:rgba(18,26,49,.82); --text:#f6f7fb; --muted:#aeb8cf; --line:#293452; --accent:#7c5cff; --accent2:#27d7a4; --danger:#ff5d6c; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--text); background:radial-gradient(circle at 20% 0%,#1d2851 0,transparent 36%),radial-gradient(circle at 90% 20%,#193f48 0,transparent 34%),var(--bg); }
+    .wrap { width:min(1120px,calc(100% - 32px)); margin:auto; padding:36px 0 48px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:linear-gradient(135deg,var(--accent),#5ee7ff); font-weight:800; box-shadow:0 10px 30px rgba(124,92,255,.25); }
+    h1 { margin:0; font-size:1.35rem; letter-spacing:-.02em; }
+    .tag { color:var(--muted); font-size:.88rem; margin-top:3px; }
+    .status { padding:8px 12px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:.82rem; background:rgba(255,255,255,.03); }
+    .panel { background:var(--panel); border:1px solid rgba(255,255,255,.08); border-radius:24px; box-shadow:0 24px 70px rgba(0,0,0,.25); backdrop-filter:blur(16px); }
+    .controls { padding:18px; display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin-bottom:18px; }
+    .field { flex:1 1 260px; }
+    label { display:block; font-size:.78rem; color:var(--muted); margin:0 0 7px 2px; }
+    select,textarea,button { font:inherit; }
+    select { width:100%; color:var(--text); background:#11182c; border:1px solid var(--line); border-radius:14px; padding:13px 14px; outline:none; }
+    .swap { width:48px; height:48px; border-radius:14px; border:1px solid var(--line); color:var(--text); background:#11182c; cursor:pointer; font-size:1.1rem; }
+    .swap:hover,.secondary:hover { border-color:#45527a; transform:translateY(-1px); }
+    .cards { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .card { padding:18px; min-height:360px; display:flex; flex-direction:column; }
+    .cardhead { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .title { font-weight:700; }
+    .small { color:var(--muted); font-size:.78rem; }
+    textarea { width:100%; flex:1; resize:none; border:0; outline:0; background:transparent; color:var(--text); font-size:1.08rem; line-height:1.65; min-height:220px; }
+    textarea::placeholder { color:#74809d; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    button { border:1px solid transparent; border-radius:13px; padding:11px 15px; cursor:pointer; font-weight:650; transition:.18s ease; }
+    .primary { background:linear-gradient(135deg,var(--accent),#5f7cff); color:white; box-shadow:0 10px 26px rgba(124,92,255,.25); }
+    .primary.recording { background:var(--danger); box-shadow:0 10px 26px rgba(255,93,108,.22); animation:pulse 1.2s infinite; }
+    .secondary { background:#11182c; color:var(--text); border-color:var(--line); }
+    .translate { grid-column:1/-1; display:flex; justify-content:center; margin-top:0; }
+    .translate button { min-width:220px; }
+    .footer { text-align:center; color:var(--muted); font-size:.78rem; padding-top:20px; }
+    .hint { margin-top:10px; color:var(--muted); font-size:.78rem; line-height:1.5; }
+    .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent2); margin-right:7px; vertical-align:middle; }
+    @keyframes pulse { 50% { transform:scale(1.02); } }
+    @media (max-width:760px) { .wrap{width:min(100% - 20px,1120px); padding-top:20px;} header{align-items:flex-start;} .status{display:none;} .cards{grid-template-columns:1fr;} .card{min-height:320px;} .translate{grid-column:auto;} .translate button{width:100%;} }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="brand"><div class="logo">VT</div><div><h1>VoiceTr</h1><div class="tag">Speak · Translate · Listen</div></div></div>
+      <div class="status"><span class="dot"></span><span id="support">Checking browser…</span></div>
+    </header>
+
+    <section class="panel controls">
+      <div class="field"><label for="sourceLang">From</label><select id="sourceLang"><option value="en-IN">English</option><option value="hi-IN">Hindi</option><option value="ta-IN">Tamil</option></select></div>
+      <button class="swap" id="swapBtn" title="Swap languages" aria-label="Swap languages">⇄</button>
+      <div class="field"><label for="targetLang">To</label><select id="targetLang"><option value="hi-IN">Hindi</option><option value="en-IN">English</option><option value="ta-IN">Tamil</option></select></div>
+    </section>
+
+    <section class="cards">
+      <article class="panel card">
+        <div class="cardhead"><div><div class="title">Your voice</div><div class="small" id="sourceLabel">English</div></div><div class="small" id="speechState">Ready</div></div>
+        <textarea id="sourceText" placeholder="Type here or use the microphone…"></textarea>
+        <div class="actions"><button class="primary" id="recordBtn">🎙 Start speaking</button><button class="secondary" id="clearSource">Clear</button></div>
+        <div class="hint">Microphone recognition uses your browser's Speech Recognition service. Allow microphone access when prompted.</div>
+      </article>
+
+      <article class="panel card">
+        <div class="cardhead"><div><div class="title">Translation</div><div class="small" id="targetLabel">Hindi</div></div><div class="small" id="translateState">Ready</div></div>
+        <textarea id="targetText" placeholder="Your translated text will appear here…" readonly></textarea>
+        <div class="actions"><button class="primary" id="speakBtn">🔊 Speak translation</button><button class="secondary" id="copyBtn">Copy</button><button class="secondary" id="clearTarget">Clear</button></div>
+      </article>
+
+      <div class="translate"><button class="primary" id="translateBtn">Translate text</button></div>
+    </section>
+
+    <div class="footer">VoiceTr supports English, Hindi and Tamil. Translation runs through a public browser-friendly translation endpoint; speech features depend on device/browser support.</div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const sourceLang = $('sourceLang'), targetLang = $('targetLang'), sourceText = $('sourceText'), targetText = $('targetText');
+    const recordBtn = $('recordBtn'), speakBtn = $('speakBtn'), translateBtn = $('translateBtn'), swapBtn = $('swapBtn');
+    const speechState = $('speechState'), translateState = $('translateState');
+
+    const names = {'en-IN':'English','hi-IN':'Hindi','ta-IN':'Tamil'};
+    const short = {'en-IN':'en','hi-IN':'hi','ta-IN':'ta'};
+
+    let recognition = null;
+    let recording = false;
+
+    function syncLabels(){
+      $('sourceLabel').textContent = names[sourceLang.value];
+      $('targetLabel').textContent = names[targetLang.value];
+    }
+    syncLabels();
+    sourceLang.onchange = syncLabels; targetLang.onchange = syncLabels;
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (Recognition) {
+      $('support').textContent = 'Voice input available';
+      recognition = new Recognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.onstart = () => { recording = true; recordBtn.classList.add('recording'); recordBtn.textContent = '⏹ Stop speaking'; speechState.textContent='Listening…'; };
+      recognition.onresult = (event) => {
+        let finalText = '';
+        let interim = '';
+        for (let i=event.resultIndex;i<event.results.length;i++) {
+          const t = event.results[i][0].transcript;
+          event.results[i].isFinal ? finalText += t : interim += t;
+        }
+        if (finalText) sourceText.value += (sourceText.value && !/\s$/.test(sourceText.value) ? ' ' : '') + finalText;
+        speechState.textContent = interim ? `Listening: ${interim}` : 'Voice captured';
+      };
+      recognition.onerror = (e) => { speechState.textContent = `Mic error: ${e.error}`; stopRecording(); };
+      recognition.onend = () => stopRecording();
+    } else {
+      $('support').textContent = 'Voice input unavailable';
+      recordBtn.disabled = true; recordBtn.title = 'Speech recognition is not supported in this browser.';
+    }
+
+    function stopRecording(){ recording=false; recordBtn.classList.remove('recording'); recordBtn.textContent='🎙 Start speaking'; if (speechState.textContent==='Listening…') speechState.textContent='Ready'; }
+    recordBtn.onclick = () => {
+      if (!recognition) return;
+      if (recording) { recognition.stop(); return; }
+      recognition.lang = sourceLang.value;
+      try { recognition.start(); } catch(_) {}
+    };
+
+    swapBtn.onclick = () => { const a=sourceLang.value; sourceLang.value=targetLang.value; targetLang.value=a; const t=sourceText.value; sourceText.value=targetText.value; targetText.value=t; syncLabels(); };
+
+    function escapeTranslationText(t){ return (t || '').trim(); }
+
+    async function translate(){
+      const text=escapeTranslationText(sourceText.value);
+      if(!text){ translateState.textContent='Enter some text first'; return; }
+      if(sourceLang.value===targetLang.value){ targetText.value=text; translateState.textContent='Same language'; return; }
+      translateState.textContent='Translating…'; translateBtn.disabled=true;
+      try {
+        const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${short[sourceLang.value]}|${short[targetLang.value]}`;
+        const res=await fetch(url);
+        const data=await res.json();
+        if(!data.responseData || !data.responseData.translatedText) throw new Error('No translation received');
+        targetText.value=data.responseData.translatedText;
+        translateState.textContent='Translated';
+      } catch(err){ targetText.value=''; translateState.textContent='Translation failed. Check your internet connection.'; }
+      finally { translateBtn.disabled=false; }
+    }
+    translateBtn.onclick=translate;
+
+    speakBtn.onclick=()=>{
+      const text=targetText.value.trim();
+      if(!text) return;
+      if(!('speechSynthesis' in window)){ translateState.textContent='Speech playback unavailable'; return; }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text); utter.lang=targetLang.value; utter.rate=0.95; utter.pitch=1;
+      const voices=window.speechSynthesis.getVoices();
+      const match=voices.find(v => v.lang.toLowerCase().startsWith(short[targetLang.value])); if(match) utter.voice=match;
+      utter.onstart=()=>translateState.textContent='Speaking…'; utter.onend=()=>translateState.textContent='Translated';
+      window.speechSynthesis.speak(utter);
+    };
+
+    $('copyBtn').onclick=async()=>{ if(!targetText.value) return; try{ await navigator.clipboard.writeText(targetText.value); $('copyBtn').textContent='Copied ✓'; setTimeout(()=>$('copyBtn').textContent='Copy',1200); }catch(_){ targetText.select(); document.execCommand('copy'); } };
+    $('clearSource').onclick=()=>{sourceText.value='';speechState.textContent='Ready';};
+    $('clearTarget').onclick=()=>{targetText.value='';translateState.textContent='Ready';};
+    if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged=()=>{};
+  </script>
+</body>
+</html>
